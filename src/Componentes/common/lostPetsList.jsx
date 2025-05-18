@@ -14,7 +14,7 @@ export default function LostPetsList({ pets, isLoading }) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
         <p className="text-yellow-700">
-          No hay mascotas reportadas todavía. ¡Sé el primero en reportar!
+          No hay mascotas reportadas todavía. ¡Sé el primero en reportar!!
         </p>
       </div>
     );
