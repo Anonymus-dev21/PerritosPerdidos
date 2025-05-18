@@ -25,7 +25,7 @@ export default function PetCard({ pet }) {
           alt={pet.animal}
           loading="lazy"
           title="Imagen de la mascota"
-          className="object-cover w-full h-full"
+          className="object-fill w-full h-full "
         />
       </div>
 

@@ -199,7 +199,8 @@ export default function AddPetForm({ fechReportes }) {
               <img
                 src={imagePreview}
                 alt="Vista previa"
-                className="w-full h-full object-cover rounded-md"
+                className="w-full h-full object-cover rounded-md 
+                "
               />
             </div>
           )}
