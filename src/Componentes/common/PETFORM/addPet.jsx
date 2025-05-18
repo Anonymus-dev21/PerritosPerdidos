@@ -1,0 +1,217 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Upload } from "lucide-react";
+import { supabase } from "@/config/supabaseConfig";
+
+export default function AddPetForm() {
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    whatsapp: "",
+    instagram: "",
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Maneja campos de texto
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  // Maneja cambio de imagen con preview
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+    }
+  };
+
+  // Validaciones básicas
+  const validate = () => {
+    const errs = {};
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(form.name.trim()))
+      errs.name = "El nombre debe contener sólo letras y espacios.";
+    if (!form.description.trim())
+      errs.description = "La descripción no puede estar vacía.";
+    if (!form.whatsapp.trim())
+      errs.whatsapp = "El número de WhatsApp es obligatorio.";
+    if (imageFile && !imageFile.type.startsWith("image/"))
+      errs.image = "El archivo debe ser una imagen válida (jpg, png, gif...).";
+    return errs;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSuccessMessage("");
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors({});
+    setIsLoading(true);
+
+    try {
+      let imageUrl = null;
+      if (imageFile) {
+        const fileName = `${Date.now()}_${imageFile.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("reports")
+          .upload(fileName, imageFile);
+        if (uploadError) throw uploadError;
+
+        // Obtener URL pública correctamente
+        const { data, error: urlError } = supabase.storage
+          .from("reports")
+          .getPublicUrl(fileName);
+        if (urlError) throw urlError;
+        // getPublicUrl devuelve data.publicUrl
+        imageUrl = data.publicUrl;
+      }
+
+      const { error: dbError } = await supabase.from("reports").insert([
+        {
+          animal: form.name.trim(),
+          description: form.description.trim(),
+          whatsapp: form.whatsapp.trim(),
+          instagram: form.instagram.trim() || null,
+          image_url: imageUrl,
+          created_at: new Date(),
+        },
+      ]);
+      if (dbError) throw dbError;
+
+      setSuccessMessage("¡Reporte enviado correctamente!");
+      setForm({ name: "", description: "", whatsapp: "", instagram: "" });
+      setImageFile(null);
+      setImagePreview(null);
+    } catch (err) {
+      console.error(err);
+      setErrors({ submit: "Ocurrió un error al enviar. Intenta de nuevo." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 bg-white p-6 rounded-lg shadow-sm border"
+    >
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 p-3 rounded-md text-center">
+          {successMessage}
+        </div>
+      )}
+
+      <div className="space-y-1">
+        <Label htmlFor="name">Nombre de la mascota</Label>
+        <Input
+          id="name"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Ej: Firulais"
+        />
+        {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="description">Descripción</Label>
+        <Textarea
+          id="description"
+          name="description"
+          rows={4}
+          value={form.description}
+          onChange={handleChange}
+          placeholder="Describe a tu mascota..."
+        />
+        {errors.description && (
+          <p className="text-red-600 text-sm">{errors.description}</p>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="image">Foto de la mascota (opcional)</Label>
+        <div className="flex flex-col items-center gap-4">
+          {imagePreview && (
+            <div className="w-full h-48">
+              <img
+                src={imagePreview}
+                alt="Vista previa"
+                className="w-full h-full object-cover rounded-md"
+              />
+            </div>
+          )}
+          <label
+            htmlFor="image"
+            className="flex items-center justify-center w-full h-12 border-2 border-dashed rounded-md cursor-pointer hover:bg-gray-50"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            <span>Subir imagen</span>
+            <Input
+              id="image"
+              name="image"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </label>
+          {errors.image && (
+            <p className="text-red-600 text-sm">{errors.image}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="whatsapp">Número de WhatsApp</Label>
+        <Input
+          id="whatsapp"
+          name="whatsapp"
+          value={form.whatsapp}
+          onChange={handleChange}
+          placeholder="Ej: +54 9 11 1234-5678"
+        />
+        {errors.whatsapp && (
+          <p className="text-red-600 text-sm">{errors.whatsapp}</p>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="instagram">Instagram (opcional)</Label>
+        <Input
+          id="instagram"
+          name="instagram"
+          value={form.instagram}
+          onChange={handleChange}
+          placeholder="Ej: @usuario"
+        />
+      </div>
+
+      {errors.submit && (
+        <p className="text-red-600 text-center">{errors.submit}</p>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full bg-blue-600 hover:bg-blue-700"
+        disabled={isLoading}
+      >
+        {isLoading ? "Enviando..." : "Reportar Mascota Perdida"}
+      </Button>
+    </form>
+  );
+}
