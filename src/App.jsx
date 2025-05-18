@@ -11,6 +11,7 @@ function App() {
   const [allPets, setAllPets] = useState([]); // <— guardamos todo
   const [pets, setPets] = useState([]);
   const [search, setSearch] = useState("");
+  const [estadoview, setEstadoview] = useState("encontrados");
   const fechReportes = async () => {
     setIsLoading(true);
     const { data, error } = await supabase
@@ -31,28 +32,34 @@ function App() {
   };
 
   const handleSearch = () => {
-    if (!search) {
-      setPets(allPets); // Restablece a la lista completa
-      return;
+    let filtered = allPets;
+
+    // Aplicar filtro de búsqueda
+    if (search) {
+      const term = search.toLowerCase();
+      filtered = filtered.filter(
+        (pet) =>
+          pet.animal?.toLowerCase().includes(term) ||
+          pet.description?.toLowerCase().includes(term) ||
+          pet.whatsapp?.toLowerCase().includes(term) ||
+          pet.instagram?.toLowerCase().includes(term)
+      );
     }
 
-    const term = search.toLowerCase();
+    // Aplicar filtro de estado
+    filtered = filtered.filter((pet) =>
+      estadoview === "encontrados"
+        ? pet.status === "encontrado"
+        : pet.status === "perdido"
+    );
 
-    // Filtra sobre allPets (la lista completa)
-    const filteredPets = allPets.filter((pet) => {
-      return (
-        pet.animal?.toLowerCase().includes(term) ||
-        pet.description?.toLowerCase().includes(term) ||
-        pet.whatsapp?.toLowerCase().includes(term) ||
-        pet.instagram?.toLowerCase().includes(term)
-      );
-    });
-
-    setPets(filteredPets);
+    setPets(filtered);
   };
+
+  // Actualizar efectos
   useEffect(() => {
     handleSearch();
-  }, [search]);
+  }, [search, estadoview, allPets]);
 
   useEffect(() => {
     fechReportes();
@@ -61,9 +68,45 @@ function App() {
   return (
     <>
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center mb-8">
-          Mascotas encontradas, se busca al dueño - Ayuda por Inundación
+        <h1 className="text-4xl font-bold text-center mb-8">
+          Mascotas encontradas en la calle - Mascotas Perdidas.
         </h1>
+        <h2 className="text-center text-xl font-semibold">
+          *Los perritos encontrados son aquellos que los tienen en algun lugar y
+          buscan al dueñoo, los perritos perdidos son aquellos que se estan
+          buscando*
+        </h2>
+        <div className="ReservasCategoryFilter w-full max-w-[900px] flex flex-row border-2 rounded-lg bg-gray-200 overflow-hidden my-5">
+          <div
+            className={`flex items-center justify-center   p-3 sm:py-1 w-[50%] transition-all duration-300 rounded-lg
+      hover:bg-white cursor-pointer select-none
+      ${
+        estadoview.toLowerCase() === "encontrados"
+          ? "bg-white shadow-inner"
+          : "sm:mx-1 sm:my-1"
+      }`}
+            onClick={() => setEstadoview("encontrados")}
+          >
+            <h4 className="text-xs sm:text-sm lg:text-base text-center">
+              Perritos encontrados en la calle
+            </h4>
+          </div>
+
+          <div
+            className={`flex items-center justify-center   p-3 sm:py-1 w-[50%] transition-all duration-300 rounded-lg
+      hover:bg-white cursor-pointer select-none
+      ${
+        estadoview.toLowerCase() === "perdido"
+          ? "bg-white shadow-inner"
+          : "sm:mx-1 sm:my-1"
+      }`}
+            onClick={() => setEstadoview("perdido")}
+          >
+            <h4 className="text-xs sm:text-sm lg:text-base text-center">
+              Perritos perdidos
+            </h4>
+          </div>
+        </div>
         <div className="mb-6 relative">
           <div className="relative lg:w-[90%] w-full">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">

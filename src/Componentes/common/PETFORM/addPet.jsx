@@ -5,13 +5,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload } from "lucide-react";
 import { supabase } from "@/config/supabaseConfig";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
 
 export default function AddPetForm({ fechReportes }) {
   const [form, setForm] = useState({
-    name: "",
+    animal: "",
     description: "",
     whatsapp: "",
     instagram: "",
+    status: "",
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -36,18 +44,28 @@ export default function AddPetForm({ fechReportes }) {
       setImagePreview(null);
     }
   };
-
+  const handleStatusChange = (value) => {
+    setForm({ ...form, status: value });
+  };
   // Validaciones básicas
   const validate = () => {
     const errs = {};
-    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(form.name.trim()))
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/.test(form.name.trim())) {
       errs.name = "El nombre debe contener sólo letras y espacios.";
-    if (!form.description.trim())
+    }
+    if (!form.description.trim()) {
       errs.description = "La descripción no puede estar vacía.";
-    if (!form.whatsapp.trim())
+    }
+    if (!form.whatsapp.trim()) {
       errs.whatsapp = "El número de WhatsApp es obligatorio.";
-    if (imageFile && !imageFile.type.startsWith("image/"))
+    }
+    if (imageFile && !imageFile.type.startsWith("image/")) {
       errs.image = "El archivo debe ser una imagen válida (jpg, png, gif...).";
+    }
+    // Status es obligatorio
+    if (!form.status) {
+      errs.status = "Debes seleccionar el estado de la mascota.";
+    }
     return errs;
   };
 
@@ -72,12 +90,10 @@ export default function AddPetForm({ fechReportes }) {
           .upload(fileName, imageFile);
         if (uploadError) throw uploadError;
 
-        // Obtener URL pública correctamente
         const { data, error: urlError } = supabase.storage
           .from("reports")
           .getPublicUrl(fileName);
         if (urlError) throw urlError;
-        // getPublicUrl devuelve data.publicUrl
         imageUrl = data.publicUrl;
       }
 
@@ -87,6 +103,7 @@ export default function AddPetForm({ fechReportes }) {
           description: form.description.trim(),
           whatsapp: form.whatsapp.trim(),
           instagram: form.instagram.trim() || null,
+          status: form.status,
           image_url: imageUrl,
           created_at: new Date(),
         },
@@ -94,7 +111,13 @@ export default function AddPetForm({ fechReportes }) {
       if (dbError) throw dbError;
 
       setSuccessMessage("¡Reporte enviado correctamente!");
-      setForm({ name: "", description: "", whatsapp: "", instagram: "" });
+      setForm({
+        name: "",
+        description: "",
+        whatsapp: "",
+        instagram: "",
+        status: "",
+      });
       setImageFile(null);
       setImagePreview(null);
       fechReportes();
@@ -117,6 +140,7 @@ export default function AddPetForm({ fechReportes }) {
         </div>
       )}
 
+      {/* Nombre */}
       <div className="space-y-1">
         <Label htmlFor="name">Nombre de la mascota</Label>
         <Input
@@ -129,6 +153,28 @@ export default function AddPetForm({ fechReportes }) {
         {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
       </div>
 
+      {/* Estado */}
+      <div className="space-y-1">
+        <Label htmlFor="status">Estado</Label>
+        <Select
+          name="status"
+          value={form.status}
+          onValueChange={handleStatusChange}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Selecciona estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="perdido">Perdido</SelectItem>
+            <SelectItem value="encontrado">Encontrado</SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.status && (
+          <p className="text-red-600 text-sm">{errors.status}</p>
+        )}
+      </div>
+
+      {/* Descripción */}
       <div className="space-y-1">
         <Label htmlFor="description">Descripción</Label>
         <Textarea
@@ -144,6 +190,7 @@ export default function AddPetForm({ fechReportes }) {
         )}
       </div>
 
+      {/* Imagen opcional */}
       <div className="space-y-1">
         <Label htmlFor="image">Foto de la mascota (opcional)</Label>
         <div className="flex flex-col items-center gap-4">
@@ -158,7 +205,7 @@ export default function AddPetForm({ fechReportes }) {
           )}
           <label
             htmlFor="image"
-            className="flex items-center justify-center w-full h-12 border-2 border-dashed rounded-md cursor-pointer hover:bg-gray-50"
+            className="flex items-center justify-center w-full h-12 border-2 border-dashed rounded-md cursor-pointer hover:bg-gray-50 transform transition-transform duration-200 hover:scale-105"
           >
             <Upload className="mr-2 h-4 w-4" />
             <span>Subir imagen</span>
@@ -177,6 +224,7 @@ export default function AddPetForm({ fechReportes }) {
         </div>
       </div>
 
+      {/* WhatsApp */}
       <div className="space-y-1">
         <Label htmlFor="whatsapp">Número de WhatsApp</Label>
         <Input
@@ -191,6 +239,7 @@ export default function AddPetForm({ fechReportes }) {
         )}
       </div>
 
+      {/* Instagram opcional */}
       <div className="space-y-1">
         <Label htmlFor="instagram">Instagram (opcional)</Label>
         <Input
