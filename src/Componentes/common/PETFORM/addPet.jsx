@@ -11,7 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/Components/ui/select";
+} from "@/components/ui/select";
 
 export default function AddPetForm({ fechReportes }) {
   const [form, setForm] = useState({
