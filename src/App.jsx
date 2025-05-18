@@ -25,7 +25,6 @@ function App() {
 
       console.error(error);
     } else {
-      console.log("Reportes obtenidos:", data);
       setPets(data);
       setAllPets(data);
     }
@@ -54,7 +53,7 @@ function App() {
   useEffect(() => {
     handleSearch();
   }, [search]);
-  console.log(search);
+
   useEffect(() => {
     fechReportes();
   }, []);
@@ -63,7 +62,7 @@ function App() {
     <>
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-center mb-8">
-          Mascotas Perdidas - Ayuda por Inundación
+          Mascotas encontradas, se busca al dueño - Ayuda por Inundación
         </h1>
         <div className="mb-6 relative">
           <div className="relative lg:w-[90%] w-full">
