@@ -98,7 +98,7 @@ function App() {
             <h2 className="text-2xl font-semibold mb-4">
               Reportar Mascota Perdida
             </h2>
-            <AddPetForm />
+            <AddPetForm fechReportes={fechReportes} />
           </div>
         </div>
       </main>

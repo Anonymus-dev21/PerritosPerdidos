@@ -3,17 +3,8 @@ import PetCard from "./petCard";
 
 // Datos de ejemplo para mostrar en la interfaz
 
-export default function LostPetsList({ pets }) {
-  const [isLoading, setIsLoading] = useState(false);
-
+export default function LostPetsList({ pets, isLoading }) {
   // Aquí se podría agregar la lógica para cargar datos reales de Supabase
-  useEffect(() => {
-    // Simulamos una carga de datos
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-  }, []);
 
   if (isLoading) {
     return <div className="text-center py-10">Cargando mascotas...</div>;

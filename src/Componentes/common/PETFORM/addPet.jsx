@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Upload } from "lucide-react";
 import { supabase } from "@/config/supabaseConfig";
 
-export default function AddPetForm() {
+export default function AddPetForm({ fechReportes }) {
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -97,6 +97,7 @@ export default function AddPetForm() {
       setForm({ name: "", description: "", whatsapp: "", instagram: "" });
       setImageFile(null);
       setImagePreview(null);
+      fechReportes();
     } catch (err) {
       console.error(err);
       setErrors({ submit: "Ocurrió un error al enviar. Intenta de nuevo." });

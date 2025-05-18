@@ -19,7 +19,7 @@ export default function PetCard({ pet }) {
 
   return (
     <Card className="overflow-hidden h-full flex flex-col">
-      <div className="relative h-48 w-full">
+      <div className="relative h-64 w-full">
         <img
           src={pet.image_url || "/placeholder.svg?height=200&width=400"}
           alt={pet.animal}
