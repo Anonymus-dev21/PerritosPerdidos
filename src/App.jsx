@@ -5,6 +5,7 @@ import { Input } from "./components/ui/input";
 import LostPetsList from "./Componentes/common/lostPetsList";
 import AddPetForm from "./Componentes/common/PETFORM/addPet";
 import { IoSearchSharp } from "react-icons/io5";
+import { Footer } from "./Layout/Footer";
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [allPets, setAllPets] = useState([]); // <— guardamos todo
@@ -101,6 +102,7 @@ function App() {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 }
