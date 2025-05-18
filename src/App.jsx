@@ -69,8 +69,13 @@ function App() {
     <>
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center mb-8">
-          Mascotas encontradas en la calle - Mascotas Perdidas.
+          ZARATE Y CAMPANA!! ACLAREN EN LA DESCRIPCIÓN LA ZONA DONDE SE
+          PERDIERON.
         </h1>
+        <p className="text-4xl font-bold text-center mb-8">
+          *Perritos, gatos, toda mascotita que se les haya perdido
+          publiquenlo!!!*
+        </p>
         <h2 className="text-center text-xl font-semibold">
           *Los perritos encontrados son aquellos que los tienen en algun lugar y
           buscan al dueñoo, los perritos perdidos son aquellos que se estan

@@ -65,7 +65,8 @@ export default function AddPetForm({ fechReportes }) {
       errs.image = "El archivo debe ser una imagen válida (jpg, png, gif...).";
     }
     if (!form.status) {
-      errs.status = "Debes seleccionar el estado de la mascota.";
+      errs.status =
+        "Debes seleccionar el estado de la mascota, perdido o encontrado.";
     }
     return errs;
   };
